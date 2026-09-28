@@ -80,7 +80,7 @@ class _Artwork extends StatelessWidget {
             ),
             const SizedBox(height: 22),
             type(
-              'COLDPLAY',
+              'EVENING',
               43,
               color: AppColors.paper,
               spacing: -2,
@@ -88,7 +88,7 @@ class _Artwork extends StatelessWidget {
             ),
             const SizedBox(height: 5),
             type(
-              'MUSIC OF THE SPHERES',
+              'ECHOES / LIVE SESSION',
               10,
               color: AppColors.paper,
               spacing: 2,
@@ -99,7 +99,7 @@ class _Artwork extends StatelessWidget {
             type('OCT 18   /   ATLANTA', 20, color: AppColors.paper),
             const SizedBox(height: 9),
             type(
-              'MERCEDES-BENZ STADIUM · 7:30 PM',
+              'RIVERSIDE HALL · 7:30 PM',
               9,
               color: AppColors.paper,
               spacing: 1,

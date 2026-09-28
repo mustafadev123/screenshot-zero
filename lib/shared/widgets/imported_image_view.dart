@@ -28,6 +28,8 @@ class ImportedImageView extends StatelessWidget {
                 .clamp(64.0, 1440.0)
                 .round();
             return Image(
+              // Flutter's native codec applies all eight EXIF orientations.
+              // Keep encoded bytes/metadata intact; do not rotate a second time.
               key: ValueKey(image.path),
               image: ResizeImage(
                 selectedImageProvider(image.path),

@@ -1,165 +1,138 @@
-﻿# Screenshot Zero
+# Screenshot Zero
 
-A Flutter Android prototype with real multi-image import, on-device analysis, actions, and optional Screenshot Zero Pro monetization. The existing Digital Darkroom theme uses warm paper, ink, thin borders, editorial typography, and one signal accent. The eight handcrafted demo screenshots remain available separately.
+**Your screenshots are unfinished intentions.**
 
-The current phone-test APK is `dist/Screenshot-Zero-1.1.0.apk`. See [the image-import phase report](docs/image-import.md) for the complete file inventory, architecture, permissions, and physical Android test steps.
+We save screenshots because we intend to do something with them. Screenshot Zero
+turns that pile into a clearing session: **Import → Understand → Act / Save / Skip
+→ Archive → Zero**, in a restrained Digital Darkroom interface.
 
-Real imported screenshots are read locally with Google ML Kit Text Recognition. A deterministic heuristic analyzer classifies OCR text as event, place, product, read, task, or reference, extracts only detected fields, and falls back to an unsorted reference when OCR fails or confidence is low. The handcrafted demo collection never goes through OCR.
-
-## Screenshot Zero Pro setup
-
-Screenshot Zero uses RevenueCat with one entitlement: `screenshot_zero_pro`. Free users can process the first 10 real screenshot analyses; demo screenshots do not consume this allowance. Pro unlocks unlimited analysis and larger batches. The counter is stored locally with SharedPreferences, while Pro status is always determined by RevenueCat.
-
-To configure RevenueCat Test Store:
-
-1. Create a RevenueCat project and Android app.
-2. Enable RevenueCat Test Store for the project.
-3. Create the `screenshot_zero_pro` entitlement.
-4. Create a current offering with one or more packages and attach the `pro` entitlement to the products.
-5. Copy the public SDK key into a local command invocation. Never commit it:
-
-```sh
-flutter run -d <android-device-id> --dart-define=REVENUECAT_API_KEY=your_public_test_store_key
-```
-
-The exact compile-time variable is `REVENUECAT_API_KEY`. It is read with `String.fromEnvironment`, so `.env` and `.env.example` are not loaded at runtime. Every APK must receive the key through `--dart-define`; a plain `flutter build apk --release` intentionally creates an unconfigured build.
-
-For a release APK, use the checked-in fail-fast PowerShell wrapper. It requires a Test Store key and cannot silently omit it:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tool\build_release.ps1 -RevenueCatApiKey "YOUR_TEST_STORE_KEY"
-```
-
-Equivalent direct PowerShell command:
-
-```powershell
-flutter build apk --release --dart-define=REVENUECAT_API_KEY=YOUR_TEST_STORE_KEY
-```
-
-Output: `build/app/outputs/flutter-apk/app-release.apk`.
-
-The app creates one `PurchasesRevenueCatService` through Riverpod. Startup refresh, the customer-info entitlement listener, purchase, restore, and the paywall all use that same provider instance and the `screenshot_zero_pro` entitlement. The paywall reads the current RevenueCat offering and localized package prices. Builds without the define remain usable and show the existing unconfigured message.
-
-## Run on an Android phone
-
-Built using Flutter 3.47.4 / Dart 3.13.3. The generated `sdk: ^3.13.3` constraint is preserved.
-
-1. Install Flutter and the Android SDK; run `flutter doctor`.
-2. Enable Developer options and USB debugging on your phone, connect it by USB, and authorize the computer on the phone.
-3. From this project directory, run:
-
-```sh
-flutter pub get
-flutter devices
-flutter run -d <android-device-id>
-```
-
-Build an installable release-mode test APK:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tool\build_release.ps1 -RevenueCatApiKey "YOUR_TEST_STORE_KEY"
-```
-
-Output: `build/app/outputs/flutter-apk/app-release.apk`. The existing Gradle configuration signs release builds with the local development key, suitable for sideloaded testing rather than store distribution.
-
-## Run in a web browser
-
-```sh
-flutter run -d web-server --web-hostname 127.0.0.1 --web-port 8080
-```
-
-Keep that terminal running and open `http://127.0.0.1:8080` in a browser on the same computer. The web-server target stays independent of the browser window. This is a local browser preview. The same mock flows and reset menu work on web; state resets on browser refresh. Web scaffolding is in `web/`, with the app title and paper theme configured in `index.html` and `manifest.json`.
-
-## Demo behavior
-
-The app starts with three onboarding pages and eight demo screenshots. Home → Import screenshots opens the system image picker. Up to 20 selected images appear in the existing contact sheet, where individual images can be removed. Process replaces the current session with the selected real images and opens Zero Stack. Cancellation and picker errors leave the current inbox untouched.
-
-- Primary action: mark the screenshot processed, archive its mock action, advance.
-- Save: archive the screenshot without assigning its proposed action.
-- Skip: move the screenshot to the back of the waiting queue. Skipping the last remaining card keeps it waiting; only processing or saving clears it.
-- Completion: stays on Inbox Zero until View archive, Import more, or Home is chosen.
-- Archive: filter processed screenshots by intent and tap an entry to inspect its saved details.
-- Reset: Home → three-dot Demo options → Reset demo restores the eight handcrafted cards and clears pending real selections. Onboarding → Explore demo does the same. Demo and real collections are not merged.
-- Replay onboarding: Home → Demo options → Replay introduction.
-
-Screenshot item state is in memory only and resets when the process restarts, apart from recovery of an interrupted Android picker result. The local free-analysis counter persists with SharedPreferences; Pro entitlement comes from RevenueCat. Today/This week reflect this single session. Calendar, Maps, wishlist, reminder, and reading actions remain as implemented in Prompt 4. No broad gallery/storage permissions, cloud AI, authentication, database, or business API integration is implemented.
-
-## Navigation
-
-| Route | Screen |
+| Category | Action |
 | --- | --- |
-| `/` | Redirect to Home |
-| `/onboarding` | Three-page introduction |
-| `/home` | Inbox count, import, archive, reset |
-| `/home/import` | Real selected images, removal, and Process |
-| `/home/stack` | One-card-at-a-time decisions |
-| `/home/zero` | Completion; redirects to Stack if items remain |
-| `/home/archive` | Filters and saved entries |
+| Event | Open Calendar, then confirm it was saved |
+| Place | Open Maps |
+| Product | Save to wishlist |
+| Read | Save for reading; open an actually detected URL |
+| Task | Confirm and schedule a reminder |
+| Reference | Keep something useful without inventing an action |
 
-Home is the parent of the four working routes, so Android back navigation returns there. Archive detail is a dismissible modal sheet.
+Save archives without running the primary action. Skip dismisses only the current
+session card; it never deletes the original or creates a false Archive status.
+Reference is a valid outcome: a food photo is not automatically a shopping task.
 
-## Files
+## Local-first intelligence and architecture
 
-The workspace was empty. Flutter generated the Android project and supporting SDK configuration; the application implementation is separated as follows:
+ML Kit OCR and existing classifier/extraction run on-device. Confident results
+never upload. Weak results may use visual analysis only with Pro, saved consent
+and a configured backend. Strict validation and a conservative resolver preserve
+local results on failure. Reference title cleanup rejects low-information OCR;
+it does not guess an unseen subject from a brand name.
 
-```text
-lib/
-  main.dart
-  app/
-    app.dart
-    router.dart
-    theme/
-      app_colors.dart
-      app_spacing.dart
-      app_theme.dart
-  domain/models/
-    screenshot_intent.dart
-    screenshot_item.dart
-  features/
-    onboarding/
-      onboarding_screen.dart
-      onboarding_visuals.dart
-    home/home_screen.dart
-    import_preview/import_preview_screen.dart
-    zero_stack/
-      inbox_provider.dart
-      zero_stack_screen.dart
-      screenshot_deck.dart
-      inbox_zero_screen.dart
-    archive/
-      archive_screen.dart
-      archive_detail.dart
-  mock/mock_screenshots.dart
-  shared/widgets/
-    page_frame.dart
-    screenshot_art.dart
-    screenshot_illustration.dart
+```mermaid
+flowchart TD
+  Picker[Android Photo Picker] --> Image[Original imported image]
+  Image --> OCR[On-device ML Kit OCR]
+  OCR --> Local[Local classifier and extractor]
+  Local --> Gate{Strong local evidence?}
+  Gate -->|Yes| Item[ScreenshotItem]
+  Gate -->|No| Consent{Pro + consent + backend URL?}
+  Consent -->|No| Item
+  Consent -->|Yes| Backend[FastAPI backend]
+  Image -->|Only after gates pass| Backend
+  Backend --> Model[OpenAI multimodal model]
+  Model --> Resolver[Strict validation and conservative resolver]
+  Backend -->|Failure: keep local| Item
+  Resolver --> Item
+  Item --> Stack[Zero Stack]
+  Stack --> Action[Action or Save]
+  Stack --> Skip[Skip: dismiss session card]
+  Action --> Archive[Local Archive: metadata + original image copy]
+  Archive --> Zero[Inbox Zero when no cards remain]
+  Skip --> Zero
+  RC[RevenueCat entitlement] -.-> Consent
+  RC -.-> Quota[10-analysis free quota; Pro bypass]
+  Quota -.-> OCR
 ```
 
-Also created or updated: `pubspec.yaml`, `pubspec.lock`, Android scaffolding and the application label in `android/app/src/main/AndroidManifest.xml`, `test/widget_test.dart`, `test/support/test_fonts.dart`, `tool/capture_previews.dart`, and this README.
+Riverpod coordinates inbox, Archive, quota and subscriptions. Archive uses versioned
+JSON records and content-addressed images in app support storage. Copies preserve
+original bytes and EXIF metadata. Corruption skips individual records without
+wiping the collection. This remains appropriate for hundreds of records; a database
+migration adds risk without a present need for complex queries.
 
-**Packages:** `go_router: ^18.0.1`, `flutter_riverpod: ^3.4.3`, `image_picker: ^1.2.3`, `image_picker_android: ^0.8.13+23`, `image_picker_platform_interface: ^2.11.1`, `google_mlkit_text_recognition: ^0.15.0`, `android_intent_plus: ^5.3.1`, `url_launcher: ^6.3.2`, `flutter_local_notifications: ^19.4.2`, `timezone: ^0.10.1`, `purchases_flutter: ^9.10.0`, and `shared_preferences: ^2.5.3`. The image-picker packages explicitly opt into the Android system Photo Picker. ML Kit runs on-device on Android and iOS; non-mobile targets use the safe reference fallback. RevenueCat uses anonymous Test Store/App Store/Play Store client configuration. Development dependencies are the Flutter SDK's `flutter_test`, `integration_test`, and `flutter_lints`.
+## Setup and builds
 
-**Mock data:** `lib/mock/mock_screenshots.dart` contains exactly eight immutable seed items. Riverpod state lives in `lib/features/zero_stack/inbox_provider.dart`. All screenshot artwork is implemented in the shared screenshot widgets.
+Flutter 3.47.4 / Dart 3.13.3, Java 17, Android SDK 36 (minimum 24).
+Version **1.5.0+6**, package `com.screenshotzero.screenshot_zero`.
 
-## Verification
+```powershell
+flutter pub get
+flutter run -d DEVICE_ID --dart-define=REVENUECAT_API_KEY=YOUR_TEST_STORE_KEY
 
-```sh
+# Debug: Test Store and optional local backend
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tool\build_debug.ps1 `
+  -RevenueCatApiKey "YOUR_TEST_STORE_KEY" `
+  -MultimodalApiBaseUrl "http://127.0.0.1:8000"
+
+# Safe release preview: no Test Store key or cloud endpoint
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tool\build_release.ps1
+```
+
+Flutter reads REVENUECAT_API_KEY and MULTIMODAL_API_BASE_URL through
+String.fromEnvironment; it does not automatically load .env.example.
+APKs are in build/app/outputs/flutter-apk/. Current signing is for development
+sideloading. Production requires distribution signing, an Android RevenueCat
+production key and HTTPS backend if enabled. Test Store is debug-only.
+
+RevenueCat entitlement `screenshot_zero_pro` is shared by startup refresh,
+purchase, restore, listener and paywall. Prices come from offerings. Pro bypasses
+the existing 10-analysis allowance; demo cards consume none.
+
+## Backend and privacy
+
+[Backend setup, API contract and USB/LAN phone connection](backend/README.md)
+documents FastAPI and the official OpenAI SDK. OPENAI_API_KEY and
+OPENAI_MULTIMODAL_MODEL belong only in ignored backend/.env. For the debug APK's
+loopback endpoint, connect an authorized phone by USB and run:
+
+```powershell
+adb reverse tcp:8000 tcp:8000
+```
+
+Local OCR never uploads images. Optional visual analysis sends selected difficult
+screenshots and OCR/context after consent. The backend keeps no permanent image
+archive; upstream provider retention policies still apply. RevenueCat communicates
+for subscriptions. Calendar/Maps receive chosen action data. No gallery scanning,
+automatic original deletion, accounts or cloud Archive sync.
+
+Release hides diagnostics and internal errors. Debug retains OCR diagnostics and a
+confirmed **Clear development archive** control in Home's menu. This clears app-owned
+Archive records/images only, not originals, quota or scheduled reminders.
+
+## Demo and testing
+
+The deterministic eight-card demo covers all six categories without Gallery,
+backend, OpenAI or RevenueCat network availability. Demo actions are simulated;
+real imports invoke device integrations. Demo reset never clears real Archive.
+
+```powershell
 flutter analyze
 flutter test
-flutter build web
+cd backend
+.\.venv\Scripts\python.exe -m pytest tests -q -p no:cacheprovider
 ```
 
-Use `tool/build_release.ps1` for Android release builds so RevenueCat configuration cannot be omitted accidentally.
+- [90–150 second demo script](docs/demo-script.md)
+- [Submission and capture checklist](docs/submission-checklist.md)
+- [Final polish results and exact phone checks](docs/final-polish.md)
 
-Widget tests exercise onboarding through all eight actions, completion, archive filters/details, reset, Skip/Save semantics, empty archive, reduced motion, widths of 360 and 430 logical pixels, and 160% text scaling on the smaller phone. Screenshot art behaves like a fixed image while surrounding interface text scales normally.
+## Known limits
 
-Optional local previews:
+English-oriented OCR; uncertain visual models; physical end-to-end visual testing
+still required. Missing/incorrect EXIF cannot be repaired reliably by guessing.
+Browser Archive and unprocessed inbox cards are session-only. Android can delay
+reminders. Disk-write failures require retry before closing; uninstall/clear-data
+removes local records. No search, sync or production deletion UI.
 
-```sh
-flutter test tool/capture_previews.dart
-```
-
-PNG files are written under `build/previews/`. Test previews load Roboto and Material icons from the installed Flutter SDK; serif artwork uses a Roboto substitute in tests. Android uses its platform serif font. Previews do not replace testing on a physical phone.
-
-The import phase adds service and widget tests for cancellation, errors, selection limits, real file rendering, removal, Skip/Save, archive retention, and picker recovery. See the phase report for final verification results. Physical Android picker behavior must still be tested on a phone.
+Public release still requires an owner-selected LICENSE, asset-rights review,
+phone validation and production signing/deployment. No license was chosen on the
+owner's behalf. Use synthetic content; never publish a private Archive.

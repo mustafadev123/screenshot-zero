@@ -1,4 +1,4 @@
-/// A session-scoped reference to a selected file (or a browser blob URL).
+/// A selected file, app-owned archived image, or session-only browser blob URL.
 class ImportedImage {
   const ImportedImage({required this.path, required this.name});
 

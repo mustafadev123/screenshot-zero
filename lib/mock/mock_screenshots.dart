@@ -4,10 +4,10 @@ import '../domain/models/screenshot_item.dart';
 const mockScreenshots = <ScreenshotItem>[
   ScreenshotItem(
     id: 1,
-    title: 'Coldplay',
+    title: 'Evening Echoes',
     intent: ScreenshotIntent.event,
     subtitle: 'Oct 18 · 7:30 PM',
-    metadata: ['Mercedes-Benz Stadium', 'Atlanta, GA'],
+    metadata: ['Riverside Hall', 'Fictional demo event'],
     artwork: ScreenshotArtwork.concert,
     primaryAction: 'Add to Calendar',
     archiveLabel: 'Oct 18 · Calendar action',

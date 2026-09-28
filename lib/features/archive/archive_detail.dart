@@ -8,8 +8,13 @@ import '../../shared/widgets/screenshot_image.dart';
 import '../actions/platform_action_services.dart';
 
 class ArchiveDetail extends StatelessWidget {
-  const ArchiveDetail({super.key, required this.item});
+  const ArchiveDetail({
+    super.key,
+    required this.item,
+    this.showDiagnostics = kDebugMode,
+  });
   final ScreenshotItem item;
+  final bool showDiagnostics;
 
   @override
   Widget build(BuildContext context) => ConstrainedBox(
@@ -37,9 +42,12 @@ class ArchiveDetail extends StatelessWidget {
           const SizedBox(height: 24),
           MetaLabel(item.label),
           const SizedBox(height: 8),
-          Text(item.title, style: Theme.of(context).textTheme.headlineMedium),
+          Text(
+            item.displayTitle,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
           const SizedBox(height: 12),
-          Text(item.subtitle),
+          Text(item.displaySubtitle),
           for (final line in item.metadata) Text(line),
           const SizedBox(height: 20),
           const Divider(),
@@ -57,11 +65,9 @@ class ArchiveDetail extends StatelessWidget {
           MetaLabel(
             item.importedImage == null
                 ? 'Demo record · no external action was taken'
-                : item.savedOnly || item.actionStatus == null
-                ? 'Local analysis · saved to archive'
-                : 'Action recorded · screenshot kept in this session',
+                : 'Saved screenshot',
           ),
-          if (kDebugMode && item.importedImage != null) ...[
+          if (kDebugMode && showDiagnostics && item.importedImage != null) ...[
             const SizedBox(height: 20),
             const Divider(),
             const SizedBox(height: 12),
@@ -115,9 +121,10 @@ class _OpenArticleLinkState extends State<_OpenArticleLink> {
             final result = await ArticleLinkService().open(widget.url);
             if (!mounted || !context.mounted) return;
             setState(() => busy = false);
-            if (!result.succeeded)
+            if (!result.succeeded) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text(result.message!)));
+            }
           },
     child: const Text('OPEN LINK'),
   );

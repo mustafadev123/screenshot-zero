@@ -40,8 +40,9 @@ DateTime? parseActionDate(String? date, String? time) {
   final year = int.parse(d.group(3)!);
   final hour = int.parse(t.group(1)!);
   final minute = int.parse(t.group(2) ?? '0');
-  if (month == null || hour < 1 || hour > 12 || minute > 59 || year < 1900)
+  if (month == null || hour < 1 || hour > 12 || minute > 59 || year < 1900) {
     return null;
+  }
   final h = hour % 12 + (t.group(3)!.toUpperCase() == 'PM' ? 12 : 0);
   final value = DateTime(year, month, day, h, minute);
   return value.year == year &&

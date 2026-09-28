@@ -2,6 +2,10 @@
 *.class
 *.log
 *.pyc
+__pycache__/
+.venv/
+venv/
+.pytest_cache/
 *.swp
 .DS_Store
 .atom/
@@ -36,6 +40,11 @@ migrate_working_dir/
 .env
 .env.*
 !.env.example
+/config/*.local.json
+/android/key.properties
+*.jks
+*.keystore
+*service-account*.json
 
 # Symbolication related
 app.*.symbols

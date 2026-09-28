@@ -8,6 +8,7 @@ import '../../shared/widgets/page_frame.dart';
 import '../../shared/widgets/imported_image_view.dart';
 import 'import_button.dart';
 import 'import_provider.dart';
+import '../analysis/multimodal/visual_consent.dart';
 
 class ImportPreviewScreen extends ConsumerWidget {
   const ImportPreviewScreen({super.key});
@@ -48,7 +49,7 @@ class ImportPreviewScreen extends ConsumerWidget {
             const Padding(
               padding: EdgeInsets.only(bottom: 12),
               child: MetaLabel(
-                'New collection · replaces this session',
+                'New collection · your archive stays saved',
                 textAlign: TextAlign.center,
               ),
             ),
@@ -59,7 +60,11 @@ class ImportPreviewScreen extends ConsumerWidget {
                   : () {
                       ref
                           .read(importProvider.notifier)
-                          .processWithResult()
+                          .processWithResult(
+                            requestVisualConsent: () async => context.mounted
+                                ? requestVisualConsent(context)
+                                : false,
+                          )
                           .then((result) {
                             if (!context.mounted) return;
                             if (result.outcome ==

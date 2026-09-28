@@ -12,6 +12,7 @@ import '../import_preview/import_button.dart';
 import '../import_preview/import_provider.dart';
 import '../subscription/analysis_quota.dart';
 import '../subscription/subscription_provider.dart';
+import '../archive/archive_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -20,7 +21,21 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final items = ref.watch(inboxProvider);
     final waiting = items.where((item) => !item.processed).toList();
-    final processed = items.length - waiting.length;
+    final archived = [
+      ...ref.watch(archiveProvider).items,
+      ...items.where((item) => item.processed && item.importedImage == null),
+    ];
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final week = today.subtract(Duration(days: today.weekday - 1));
+    int since(DateTime start) => archived
+        .where(
+          (item) =>
+              item.processedAt != null &&
+              !item.processedAt!.isBefore(start) &&
+              !item.processedAt!.isAfter(now),
+        )
+        .length;
     return PageFrame(
       label: 'Screenshot Zero',
       showBack: false,
@@ -46,6 +61,11 @@ class HomeScreen extends ConsumerWidget {
                 value: 'reset-quota',
                 child: Text('Reset free usage'),
               ),
+            if (kDebugMode)
+              const PopupMenuItem(
+                value: 'clear-archive',
+                child: Text('Clear development archive'),
+              ),
             const PopupMenuDivider(),
             const PopupMenuItem(value: 'reset', child: Text('Reset demo')),
             const PopupMenuItem(
@@ -54,13 +74,45 @@ class HomeScreen extends ConsumerWidget {
             ),
           ];
         },
-        onSelected: (value) {
+        onSelected: (value) async {
           if (value == 'reset') {
             ref.read(importProvider.notifier).clear();
             ref.read(inboxProvider.notifier).reset();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Demo reset. Eight fresh intentions.'),
+              ),
+            );
+          } else if (value == 'clear-archive' && kDebugMode) {
+            final confirmed = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Clear development archive?'),
+                content: const Text(
+                  'Remove saved records and app-owned image copies? Original photos, quota and scheduled reminders stay unchanged.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Clear archive'),
+                  ),
+                ],
+              ),
+            );
+            if (confirmed != true || !context.mounted) return;
+            final cleared = await ref
+                .read(archiveProvider.notifier)
+                .clearDevelopment();
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  cleared ? 'Development archive cleared.' : 'Couldn’t clear the archive. Retry any pending saves first.',
+                ),
               ),
             );
           } else if (value == 'pro') {
@@ -102,7 +154,8 @@ class HomeScreen extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: MetaLabel(
-                    items.any((item) => item.importedImage != null)
+                    items.isEmpty ||
+                            items.any((item) => item.importedImage != null)
                         ? 'Your screenshot inbox'
                         : 'Demo screenshot inbox',
                   ),
@@ -174,10 +227,10 @@ class HomeScreen extends ConsumerWidget {
             Row(
               children: [
                 Expanded(
-                  child: _Summary(label: 'Today', count: processed),
+                  child: _Summary(label: 'Today', count: since(today)),
                 ),
                 Expanded(
-                  child: _Summary(label: 'This week', count: processed),
+                  child: _Summary(label: 'This week', count: since(week)),
                 ),
               ],
             ),
@@ -190,7 +243,7 @@ class HomeScreen extends ConsumerWidget {
                   const Icon(Icons.inventory_2_outlined, size: 18),
                   const SizedBox(width: 12),
                   const Expanded(child: Text('The archive')),
-                  Text(processed.toString().padLeft(2, '0')),
+                  Text(archived.length.toString().padLeft(2, '0')),
                   const SizedBox(width: 12),
                   const Icon(Icons.arrow_forward, size: 18),
                 ],

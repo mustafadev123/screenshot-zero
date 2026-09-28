@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:screenshot_zero/features/archive/archive_provider.dart';
+import 'package:screenshot_zero/features/archive/data/archive_repository.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:screenshot_zero/domain/models/imported_image.dart';
@@ -34,6 +37,7 @@ void main() {
     extractor = ControlledExtractor();
     container = ProviderContainer(
       overrides: [
+        archiveRepositoryProvider.overrideWithValue(MemoryArchiveRepository()),
         screenshotTextExtractorProvider.overrideWithValue(extractor),
         imageImportServiceProvider.overrideWithValue(
           FakeImageImportService()..result = ImageImportResult(images: images),
@@ -71,7 +75,7 @@ void main() {
         ScreenshotIntent.reference,
         ScreenshotIntent.event,
       ]);
-      expect(items[1].title, 'Unsorted screenshot');
+      expect(items[1].title, 'Saved reference');
       for (var i = 0; i < images.length; i++) {
         expect(items[i].importedImage, same(images[i]));
         expect(items[i].artwork, isNull);

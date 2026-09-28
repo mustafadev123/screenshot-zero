@@ -4,4 +4,6 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- LAN backend testing only; the release manifest remains unchanged. -->
+    <application android:usesCleartextTraffic="true" />
 </manifest>

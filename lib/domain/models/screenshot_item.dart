@@ -1,5 +1,6 @@
 import 'screenshot_intent.dart';
 import 'imported_image.dart';
+import 'title_quality.dart';
 
 enum ScreenshotArtwork {
   concert,
@@ -33,6 +34,10 @@ class ScreenshotItem {
     this.actionStatus,
     this.actionDateTime,
     this.notificationId,
+    this.archiveId,
+    this.createdAt,
+    this.processedAt,
+    this.archiveNumber,
   }) : assert((artwork == null) != (importedImage == null));
   final int id;
   final String title;
@@ -53,8 +58,23 @@ class ScreenshotItem {
   final String? actionStatus;
   final DateTime? actionDateTime;
   final int? notificationId;
+  final String? archiveId;
+  final DateTime? createdAt;
+  final DateTime? processedAt;
+  final int? archiveNumber;
 
-  String get sequence => '#${id.toString().padLeft(4, '0')}';
+  String get displayTitle =>
+      intent == ScreenshotIntent.reference && importedImage != null
+      ? (TitleQuality.weak(title)
+            ? TitleQuality.reference(title, text: title)
+            : title)
+      : title;
+  String get displaySubtitle =>
+      intent == ScreenshotIntent.reference && importedImage != null
+      ? TitleQuality.referenceCopy
+      : subtitle;
+
+  String get sequence => '#${(archiveNumber ?? id).toString().padLeft(4, '0')}';
   String get label => '${intent.label} · $sequence';
   String get disposition =>
       savedOnly ? 'Saved to archive' : actionStatus ?? archiveLabel;
@@ -84,5 +104,38 @@ class ScreenshotItem {
     actionStatus: status ?? actionStatus,
     actionDateTime: actionDateTime ?? this.actionDateTime,
     notificationId: notificationId ?? this.notificationId,
+    archiveId: archiveId,
+    createdAt: createdAt ?? DateTime.now(),
+    processedAt: processedAt ?? DateTime.now(),
+    archiveNumber: archiveNumber,
+  );
+
+  ScreenshotItem withStorage({
+    required String archiveId,
+    required ImportedImage image,
+    int? archiveNumber,
+  }) => ScreenshotItem(
+    id: id,
+    title: title,
+    intent: intent,
+    subtitle: subtitle,
+    metadata: metadata,
+    importedImage: image,
+    primaryAction: primaryAction,
+    archiveLabel: archiveLabel,
+    processed: processed,
+    savedOnly: savedOnly,
+    rawOcrText: rawOcrText,
+    analysisConfidence: analysisConfidence,
+    matchedSignals: matchedSignals,
+    extractedFields: extractedFields,
+    ocrError: ocrError,
+    actionStatus: actionStatus,
+    actionDateTime: actionDateTime,
+    notificationId: notificationId,
+    archiveId: archiveId,
+    createdAt: createdAt,
+    processedAt: processedAt,
+    archiveNumber: archiveNumber ?? this.archiveNumber,
   );
 }

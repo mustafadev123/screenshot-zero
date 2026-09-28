@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:screenshot_zero/app/app.dart';
 import 'package:screenshot_zero/app/router.dart';
 import 'package:screenshot_zero/features/zero_stack/inbox_provider.dart';
+import 'package:screenshot_zero/features/archive/archive_provider.dart';
+import 'package:screenshot_zero/features/archive/data/archive_repository.dart';
 import 'package:screenshot_zero/mock/mock_screenshots.dart';
 import 'package:screenshot_zero/shared/widgets/page_frame.dart';
 
@@ -37,6 +39,7 @@ Future<ProviderContainer> launch(
   addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
   final container = ProviderContainer(
     overrides: [
+      archiveRepositoryProvider.overrideWithValue(MemoryArchiveRepository()),
       analysisQuotaStoreProvider.overrideWithValue(MemoryAnalysisQuotaStore()),
       revenueCatServiceProvider.overrideWithValue(FakeRevenueCatService()),
       if (actionService != null)
@@ -95,9 +98,9 @@ void main() {
       );
       await tapText(tester, 'View archive');
       await tapText(tester, 'EVENTS');
-      expect(find.text('Coldplay'), findsOneWidget);
+      expect(find.text('Evening Echoes'), findsOneWidget);
       expect(find.text('Sunday Table'), findsNothing);
-      await tapText(tester, 'Coldplay');
+      await tapText(tester, 'Evening Echoes');
       expect(
         find.text('Demo record · no external action was taken'.toUpperCase()),
         findsOneWidget,
@@ -118,13 +121,18 @@ void main() {
   );
 
   testWidgets(
-    'skip retains waiting item, save archives it, last skip stays waiting',
+    'mixed skip, save and primary actions reach zero without skipped cards',
     (tester) async {
       final container = await launch(tester);
       container.read(routerProvider).go('/home/stack');
       await tester.pumpAndSettle();
       await tapText(tester, 'Skip');
       expect(find.text('Sunday Table'), findsOneWidget);
+      expect(
+        container.read(inboxProvider).any((item) => item.id == 1),
+        isFalse,
+      );
+      expect(find.text('SKIPPED FOR NOW'), findsOneWidget);
       expect(
         container.read(inboxProvider).where((item) => item.processed),
         isEmpty,
@@ -137,18 +145,44 @@ void main() {
             .savedOnly,
         isTrue,
       );
-      for (final item in mockScreenshots.skip(2)) {
-        container.read(inboxProvider.notifier).process(item.id);
+      for (final item in mockScreenshots.skip(2).take(5)) {
+        await tapText(tester, item.primaryAction.toUpperCase());
       }
-      await tester.pumpAndSettle();
-      expect(find.text('Coldplay'), findsOneWidget);
+      expect(find.text(mockScreenshots.last.title), findsOneWidget);
       await tapText(tester, 'Skip');
-      expect(find.text('Coldplay'), findsOneWidget);
-      expect(find.text('You’re clear.'), findsNothing);
-      await tapText(tester, 'Save');
       expect(find.text('You’re clear.'), findsOneWidget);
+      expect(container.read(routerProvider).state.uri.path, '/home/zero');
+      expect(container.read(inboxProvider).length, 6);
+      expect(
+        container.read(inboxProvider).every((item) => item.processed),
+        isTrue,
+      );
     },
   );
+
+  testWidgets('consecutive skips dismiss every card and reach Inbox Zero', (
+    tester,
+  ) async {
+    final container = await launch(tester);
+    container.read(routerProvider).go('/home/stack');
+    await tester.pumpAndSettle();
+    for (final item in mockScreenshots) {
+      expect(find.text(item.title), findsOneWidget);
+      await tapText(tester, 'Skip');
+      expect(
+        container.read(inboxProvider).any((current) => current.id == item.id),
+        isFalse,
+      );
+    }
+    expect(container.read(inboxProvider), isEmpty);
+    expect(container.read(archiveProvider).items, isEmpty);
+    expect(container.read(routerProvider).state.uri.path, '/home/zero');
+    expect(find.text('You’re clear.'), findsOneWidget);
+    container.read(routerProvider).go('/home/stack');
+    await tester.pumpAndSettle();
+    expect(find.text('You’re clear.'), findsOneWidget);
+    expect(find.text('Skip'), findsNothing);
+  });
 
   for (final scenario in [
     (360.0, 640.0, 1.0),

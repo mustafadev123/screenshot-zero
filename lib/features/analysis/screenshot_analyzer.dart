@@ -40,6 +40,7 @@ class ScreenshotAnalysisResult {
         subtitle: subtitle,
         metadata: metadata,
         importedImage: image,
+        createdAt: DateTime.now(),
         primaryAction: primaryAction,
         archiveLabel: archiveLabel,
         rawOcrText: rawText,

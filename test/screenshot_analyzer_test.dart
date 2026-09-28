@@ -77,7 +77,7 @@ void main() {
     expect(analyze('Remember this').intent, ScreenshotIntent.reference);
     final empty = analyze('');
     expect(empty.intent, ScreenshotIntent.reference);
-    expect(empty.title, 'Unsorted screenshot');
+    expect(empty.title, 'Saved reference');
     expect(empty.metadata, isEmpty);
   });
 
@@ -99,7 +99,7 @@ void main() {
       ),
     );
     expect(result.intent, ScreenshotIntent.reference);
-    expect(result.title, 'Unsorted screenshot');
+    expect(result.title, 'Saved reference');
     expect(result.matchedSignals, contains('ocr_error'));
     expect(result.ocrError, 'Image file is not readable');
   });

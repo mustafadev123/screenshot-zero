@@ -1,18 +1,10 @@
-param(
-    [Parameter(Mandatory = $true)]
-    [ValidatePattern('^test_.+')]
-    [string]$RevenueCatApiKey
-)
-
+param([string]$RevenueCatApiKey = '')
 $ErrorActionPreference = 'Stop'
-
-if ($RevenueCatApiKey -eq 'YOUR_TEST_STORE_KEY') {
-    throw 'Replace YOUR_TEST_STORE_KEY with the RevenueCat Test Store public SDK key.'
+if ($RevenueCatApiKey -and $RevenueCatApiKey -notmatch '^goog_[A-Za-z0-9]+$') {
+    throw 'Release requires the Android RevenueCat public SDK key (goog_). Test Store keys are debug-only.'
 }
-
-& flutter build apk --release "--dart-define=REVENUECAT_API_KEY=$RevenueCatApiKey"
-if ($LASTEXITCODE -ne 0) {
-    throw "Flutter release build failed with exit code $LASTEXITCODE."
-}
-
-Write-Output 'Built build/app/outputs/flutter-apk/app-release.apk with RevenueCat Test Store configuration.'
+Push-Location (Split-Path -Parent $PSScriptRoot)
+try {
+    & flutter build apk --release "--dart-define=REVENUECAT_API_KEY=$RevenueCatApiKey" '--dart-define=MULTIMODAL_API_BASE_URL='
+    if ($LASTEXITCODE -ne 0) { throw 'Release build failed.' }
+} finally { Pop-Location }

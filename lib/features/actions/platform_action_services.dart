@@ -27,10 +27,11 @@ class CalendarActionService {
         'A complete date and time are needed before opening Calendar.',
       );
     }
-    if (!_android)
+    if (!_android) {
       return const ActionResult.failed(
         'Calendar creation is available on Android.',
       );
+    }
     try {
       await AndroidIntent(
         action: 'android.intent.action.INSERT',
@@ -61,10 +62,11 @@ class MapsActionService {
       name,
       address,
     ].whereType<String>().where((s) => s.trim().isNotEmpty).join(', ');
-    if (query.isEmpty)
+    if (query.isEmpty) {
       return const ActionResult.failed(
         "Couldn't open Maps without a place or address.",
       );
+    }
     final geo = Uri.parse('geo:0,0?q=${Uri.encodeComponent(query)}');
     final web = Uri.https('www.google.com', '/maps/search/', {
       'api': '1',
@@ -105,10 +107,11 @@ class ReminderActionService {
         'Choose and confirm a future date and time for this reminder.',
       );
     }
-    if (!_android)
+    if (!_android) {
       return const ActionResult.failed(
         'Local reminders are available on Android.',
       );
+    }
     try {
       if (!_initialized) {
         final initialized = await _notifications.initialize(
@@ -116,8 +119,9 @@ class ReminderActionService {
             android: AndroidInitializationSettings('ic_notification'),
           ),
         );
-        if (initialized != true)
+        if (initialized != true) {
           return const ActionResult.failed("Couldn't initialize reminders.");
+        }
         tz_data.initializeTimeZones();
         _initialized = true;
       }
@@ -204,8 +208,9 @@ class ArticleLinkService {
 
   Future<ActionResult> open(String text) async {
     final uri = validUrl(text);
-    if (uri == null)
+    if (uri == null) {
       return const ActionResult.failed('No readable web link was found.');
+    }
     try {
       if (await launchUrl(uri, mode: LaunchMode.externalApplication)) {
         return const ActionResult.success(message: 'Link opened');

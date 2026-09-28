@@ -86,18 +86,16 @@ void main() {
           same(images.last),
         );
         await tapText(tester, 'Save');
-        expect(find.text('02 / 02'), findsOneWidget);
-        await tapText(tester, 'SAVE REFERENCE');
         expect(find.text('You’re clear.'), findsOneWidget);
         await tapText(tester, 'View archive');
-        expect(find.byType(ImportedImageView), findsNWidgets(2));
+        expect(find.byType(ImportedImageView), findsOneWidget);
         expect(
           container.read(inboxProvider).every((item) => item.processed),
           isTrue,
         );
-        await tester.tap(find.text('Unsorted screenshot').first);
+        await tester.tap(find.text('Saved reference').first);
         await tester.pumpAndSettle();
-        expect(find.byType(ImportedImageView), findsNWidgets(3));
+        expect(find.byType(ImportedImageView), findsNWidgets(2));
         await tapText(tester, 'Back to archive');
         container.read(routerProvider).go('/onboarding');
         await tester.pumpAndSettle();

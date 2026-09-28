@@ -4,6 +4,7 @@ import '../../domain/models/imported_image.dart';
 import '../../domain/models/screenshot_item.dart';
 import '../../features/analysis/mlkit_screenshot_text_extractor.dart';
 import '../../features/analysis/screenshot_analyzer.dart';
+import '../analysis/multimodal/hybrid_analysis.dart';
 import '../../features/analysis/screenshot_text_extractor.dart';
 import '../zero_stack/inbox_provider.dart';
 import 'data/image_import_service.dart';
@@ -102,7 +103,9 @@ class ImportController extends Notifier<ImportSelection> {
   Future<bool> process() async =>
       (await processWithResult()).outcome == ImportProcessOutcome.processed;
 
-  Future<ImportProcessResult> processWithResult() async {
+  Future<ImportProcessResult> processWithResult({
+    Future<bool> Function()? requestVisualConsent,
+  }) async {
     if (state.busy || _processing || state.images.isEmpty) {
       return const ImportProcessResult.failed();
     }
@@ -164,6 +167,24 @@ class ImportController extends Notifier<ImportSelection> {
             image: ImportedImage(path: '', name: ''),
             text: ExtractedTextResult(text: '', error: 'OCR pipeline failed'),
           );
+        }
+        if (!ref.mounted || generation != _generation) {
+          return const ImportProcessResult.failed();
+        }
+        result = await ref
+            .read(hybridAnalysisProvider)
+            .refine(
+              image: image,
+              local: result,
+              isPro: ref.read(subscriptionProvider).isPro,
+              requestConsent: requestVisualConsent,
+              stillActive: () =>
+                  ref.mounted &&
+                  generation == _generation &&
+                  ref.read(subscriptionProvider).isPro,
+            );
+        if (!ref.mounted || generation != _generation) {
+          return const ImportProcessResult.failed();
         }
         items.add(result.toItem(id: index + 1, image: image));
       }

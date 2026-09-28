@@ -7,6 +7,7 @@ import 'theme/app_theme.dart';
 import 'theme/app_colors.dart';
 import '../features/import_preview/import_provider.dart';
 import '../features/subscription/subscription_provider.dart';
+import '../features/archive/archive_provider.dart';
 import 'app_keys.dart';
 
 class ScreenshotZeroApp extends ConsumerStatefulWidget {
@@ -34,6 +35,7 @@ class _ScreenshotZeroAppState extends ConsumerState<ScreenshotZeroApp> {
     // Eagerly refresh the same RevenueCat service used by the paywall,
     // purchase, restore, and entitlement listener paths.
     ref.read(subscriptionProvider.notifier).ensureReady();
+    ref.read(archiveProvider.notifier).ensureReady();
   }
 
   Future<void> _recoverSelection() async {

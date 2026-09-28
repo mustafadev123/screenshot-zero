@@ -10,6 +10,7 @@ import '../../shared/widgets/page_frame.dart';
 import '../../shared/widgets/screenshot_image.dart';
 import '../zero_stack/inbox_provider.dart';
 import 'archive_detail.dart';
+import 'archive_provider.dart';
 
 class ArchiveScreen extends ConsumerStatefulWidget {
   const ArchiveScreen({super.key});
@@ -31,9 +32,17 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final archive = ref.watch(archiveProvider);
     final archived =
-        ref.watch(inboxProvider).where((item) => item.processed).toList()
-          ..sort((a, b) => a.id.compareTo(b.id));
+        [
+          ...archive.items,
+          ...ref
+              .watch(inboxProvider)
+              .where((item) => item.processed && item.importedImage == null),
+        ]..sort(
+          (a, b) =>
+              (a.archiveNumber ?? a.id).compareTo(b.archiveNumber ?? b.id),
+        );
     final visible = archived
         .where((item) => _filter == null || item.intent == _filter)
         .toList();
@@ -45,6 +54,24 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
       ),
       child: CustomScrollView(
         slivers: [
+          if (archive.loading)
+            const SliverToBoxAdapter(child: LinearProgressIndicator()),
+          if (archive.error != null)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Text(archive.error!),
+                    TextButton(
+                      onPressed: () =>
+                          ref.read(archiveProvider.notifier).retry(),
+                      child: const Text('Retry saving'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.page,
@@ -94,7 +121,7 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
-          if (visible.isEmpty)
+          if (visible.isEmpty && !archive.loading)
             SliverFillRemaining(
               hasScrollBody: false,
               child: Padding(
@@ -192,7 +219,7 @@ class _ArchiveRow extends StatelessWidget {
                     MetaLabel(item.label),
                     const SizedBox(height: 8),
                     Text(
-                      item.title,
+                      item.displayTitle,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 6),

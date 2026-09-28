@@ -1,4 +1,5 @@
 import '../../domain/models/screenshot_intent.dart';
+import '../../domain/models/title_quality.dart';
 import 'ocr_document.dart';
 import 'screenshot_text_extractor.dart';
 
@@ -167,10 +168,12 @@ class StructuredExtraction {
         subtitle = fields['source'] ?? 'Saved for reading';
         if (fields['author'] != null) metadata.add('By ${fields['author']}');
       case ScreenshotIntent.reference:
-        subtitle = 'We couldn’t confidently identify an action.';
+        subtitle = TitleQuality.referenceCopy;
     }
     return StructuredExtraction(
-      title ?? 'Unsorted screenshot',
+      intent == ScreenshotIntent.reference
+          ? TitleQuality.reference(title ?? '', text: doc.raw)
+          : title ?? 'Saved screenshot',
       subtitle.isEmpty ? 'Recognized text' : subtitle,
       List.unmodifiable(metadata),
       Map.unmodifiable(fields),
@@ -348,7 +351,8 @@ class StructuredExtraction {
         overlap < shorterWidth * .5 ||
         gap < 0 ||
         gap >
-            (first.height > second.height ? first.height : second.height) * 1.5) {
+            (first.height > second.height ? first.height : second.height) *
+                1.5) {
       return lines;
     }
     return first.top! > second.top! ? lines.reversed.toList() : lines;

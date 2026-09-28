@@ -1,11 +1,16 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 const proEntitlementId = 'screenshot_zero_pro';
 const revenueCatApiKeyVariable = 'REVENUECAT_API_KEY';
 const revenueCatApiKey = String.fromEnvironment('REVENUECAT_API_KEY');
+
+bool revenueCatKeyAllowed(String key, {required bool debug}) =>
+    key.trim().isNotEmpty && (debug || !key.trim().startsWith('test_'));
 
 class SubscriptionPackage {
   const SubscriptionPackage({
@@ -75,10 +80,10 @@ class PurchasesRevenueCatService implements RevenueCatService {
 
   @override
   Future<SubscriptionSnapshot> initialize() async {
-    if (_apiKey.trim().isEmpty) {
+    if (!revenueCatKeyAllowed(_apiKey, debug: kDebugMode)) {
       return const SubscriptionSnapshot(
         isPro: false,
-        error: 'RevenueCat is not configured for this build.',
+        error: 'Pro purchases are unavailable in this build.',
       );
     }
     try {
@@ -91,8 +96,11 @@ class PurchasesRevenueCatService implements RevenueCatService {
       final offerings = await Purchases.getOfferings();
       _offering = offerings.current;
       return _snapshot(info);
-    } catch (error) {
-      return SubscriptionSnapshot(isPro: false, error: error.toString());
+    } catch (_) {
+      return const SubscriptionSnapshot(
+        isPro: false,
+        error: 'Couldn’t load Pro options. Please try again.',
+      );
     }
   }
 
@@ -128,7 +136,9 @@ class PurchasesRevenueCatService implements RevenueCatService {
               PurchasesErrorCode.purchaseCancelledError) {
         return const SubscriptionOperationResult.cancelled();
       }
-      return SubscriptionOperationResult.failed('Purchase failed: $error');
+      return const SubscriptionOperationResult.failed(
+        'Purchase could not be completed. Please try again.',
+      );
     }
   }
 
@@ -136,7 +146,7 @@ class PurchasesRevenueCatService implements RevenueCatService {
   Future<SubscriptionOperationResult> restore() async {
     if (!_configured) {
       return const SubscriptionOperationResult.failed(
-        'RevenueCat is not configured for this build.',
+        'Pro purchases are unavailable in this build.',
       );
     }
     try {
@@ -149,7 +159,9 @@ class PurchasesRevenueCatService implements RevenueCatService {
               'No active Pro purchase found.',
             );
     } catch (error) {
-      return SubscriptionOperationResult.failed('Restore failed: $error');
+      return const SubscriptionOperationResult.failed(
+        'Couldn’t restore purchases. Please try again.',
+      );
     }
   }
 

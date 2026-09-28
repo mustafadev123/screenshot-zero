@@ -39,18 +39,22 @@ class _ZeroStackScreenState extends ConsumerState<ZeroStackScreen> {
     });
     try {
       final inbox = ref.read(inboxProvider.notifier);
+      var saved = true;
       if (skip) {
         inbox.skip(item.id);
       } else if (saveOnly || item.importedImage == null) {
-        inbox.process(item.id, saveOnly: saveOnly);
+        saved = await inbox.process(item.id, saveOnly: saveOnly);
       } else {
         DateTime? confirmedAt;
         if (item.intent.name == 'event' || item.intent.name == 'task') {
           confirmedAt = await confirmActionTime(context, item);
           if (!mounted || confirmedAt == null) return;
         }
-        if (!ref.read(inboxProvider).any((current) => identical(current, item)))
+        if (!ref
+            .read(inboxProvider)
+            .any((current) => identical(current, item))) {
           return;
+        }
         final result = await ref
             .read(screenshotActionServiceProvider)
             .execute(item, confirmedAt: confirmedAt);
@@ -67,12 +71,15 @@ class _ZeroStackScreenState extends ConsumerState<ZeroStackScreen> {
           }
           return;
         }
-        if (!ref.read(inboxProvider).any((current) => identical(current, item)))
+        if (!ref
+            .read(inboxProvider)
+            .any((current) => identical(current, item))) {
           return;
+        }
         if (item.intent.name == 'event') {
           if (!await confirmCalendarSaved(context) || !mounted) return;
         }
-        inbox.process(
+        saved = await inbox.process(
           item.id,
           expected: item,
           status: item.intent.name == 'event'
@@ -82,18 +89,27 @@ class _ZeroStackScreenState extends ConsumerState<ZeroStackScreen> {
           notificationId: result.notificationId,
         );
       }
+      if (!mounted) return;
+      if (!saved) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Couldn’t save permanently. Open Archive to retry.'),
+          ),
+        );
+      }
       if (ref.read(inboxProvider).every((item) => item.processed)) {
         context.go('/home/zero');
         return;
       }
       await Future<void>.delayed(duration);
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Couldn't complete this action. Please try again."),
           ),
         );
+      }
     } finally {
       lock.release();
       if (mounted) setState(() => _transitioning = false);
@@ -149,10 +165,10 @@ class _ZeroStackScreenState extends ConsumerState<ZeroStackScreen> {
             liveRegion: true,
             child: MetaLabel(
               _skipped
-                  ? 'Kept for later · still in your inbox'
+                  ? 'Skipped for now'
                   : item.importedImage != null
                   ? 'You choose what happens next'
-                  : 'Demo mode · actions stay in this app',
+                  : 'Demo collection',
               textAlign: TextAlign.center,
             ),
           ),
@@ -204,12 +220,12 @@ class _ZeroStackScreenState extends ConsumerState<ZeroStackScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                item.title,
+                item.displayTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                item.subtitle,
+                item.displaySubtitle,
                 style: Theme.of(context).textTheme.bodyLarge
                     ?.copyWith(color: AppColors.ink),
               ),
