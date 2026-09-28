@@ -48,7 +48,7 @@ Android phone by USB, enable USB debugging and accept the PC authorization promp
 ```powershell
 & C:\Android\platform-tools\adb.exe devices
 & C:\Android\platform-tools\adb.exe reverse tcp:8000 tcp:8000
-& C:\Android\platform-tools\adb.exe install -r ..\dist\Screenshot-Zero-1.4.0-backend-debug.apk
+& C:\Android\platform-tools\adb.exe install -r ..\dist\Screenshot-Zero-1.5.0-debug.apk
 ```
 
 Keep the backend and USB connection active; reapply reverse after reconnecting.
@@ -150,7 +150,7 @@ loopback or a trusted LAN, and HTTPS for any remote deployment.
 
 ## Automated checks and manual phone plan
 
-Verification for this change:
+Automated verification at the backend implementation checkpoint (historical):
 
 - Backend: 22 tests passed. Python compilation and pip check passed; no type-check
   configuration exists. One upstream TestClient/httpx deprecation warning remains.
@@ -158,10 +158,14 @@ Verification for this change:
   backend-adapter cases). The strengthened no-read/no-network gate tests also pass.
 - Debug APK built successfully with RevenueCat Test Store configuration and
   MULTIMODAL_API_BASE_URL=http://127.0.0.1:8000. No OpenAI key in Flutter source.
-- APK: C:\Development\Projects\Hackathon_project_1\dist\Screenshot-Zero-1.4.0-backend-debug.apk.
-- Backend is running on 127.0.0.1:8000; health verified. LAN launch was not approved.
-- Supplied credential check: OpenAI HTTP 401. No live image inference performed.
-- No release APK was built in this task.
+- Current debug artifact: `dist/Screenshot-Zero-1.5.0-debug.apk` (project root).
+- Subsequent physical Android testing verified phone-to-backend connectivity and
+  real inference, including semantic Reference results, using a debug APK, USB
+  debugging, adb reverse and backend on 127.0.0.1:8000.
+- The initial invalid key was replaced. Credential/model lookup and subsequent
+  on-device inference succeeded in development; this is not production validation.
+- Current safe release preview: `dist/Screenshot-Zero-1.5.0-release-preview.apk`;
+  it intentionally has no purchase key or cloud endpoint.
 
 Files created: backend/app/{main,config,models}.py, backend/app/services/
 {multimodal_service,openai_multimodal_service}.py and package markers,
@@ -205,7 +209,8 @@ schema serialization and parsing. There is no configured static type checker.
 8. Save/action/Skip a mixed collection, then restart to verify existing Archive and
    Skip behavior. No backend screenshot storage is involved.
 
-The initial credential returned HTTP 401; a replacement subsequently passed
-credential/model lookup and the loopback backend was restarted. No live image
-inference has been verified. The ignored .env is populated; the key never enters
-Flutter. Working credentials/model access/billing are required on a new installation.
+Physical Android multimodal connectivity and live backend inference have been
+verified in development, including semantic Reference results. The ignored .env
+holds server credentials; the key never enters Flutter. New installations require
+working credentials/model access/billing. Production deployment/security and broad
+model-quality evaluation remain future work; individual outputs can still be wrong.

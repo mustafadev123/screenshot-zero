@@ -1,5 +1,8 @@
 Screenshot Zero 1.2.0 — OCR implementation and phone verification
 
+Historical implementation checkpoint. Version/APK references below describe that
+build; use the root README and docs/final-polish.md for current 1.5.0+6 setup.
+
 The existing Digital Darkroom screens now receive locally recognized text and
 structured metadata from real imported screenshots. The five supplied images
 were read with Windows.Media.Ocr for diagnostics; their actual transcripts pass

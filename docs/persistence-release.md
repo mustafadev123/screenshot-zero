@@ -1,5 +1,8 @@
 # Persistence and release cleanup — 1.4.0+5
 
+Historical implementation checkpoint. Commands, artifacts and verification notes
+below describe 1.4.0; current setup is in ../README.md and final-polish.md.
+
 ## Storage and startup
 
 The existing quota already used SharedPreferences. Real Archive records were only

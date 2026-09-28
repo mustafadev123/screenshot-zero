@@ -112,8 +112,9 @@ Controlled fixture names/transcripts were reviewed; no personal phone/bank/nutri
 Archive was imported into public materials. Raster artwork/portraits still need an
 owner-confirmed provenance/redistribution review. Built-in fictional painted demo
 is the preferred recording safety net. README contains no private screenshot.
-LICENSE is missing; choosing one is an owner decision and remains a publication
-blocker. Contest-specific eligibility/deadlines were not researched or certified.
+The subsequent repository cleanup added the owner-requested MIT LICENSE,
+Copyright (c) 2026 Muhammad Mustufa. Asset rights still require review.
+Contest-specific eligibility/deadlines were not researched or certified.
 
 ## Documentation and files
 
@@ -121,8 +122,9 @@ README now explains problem/solution, six actions, local-first intelligence,
 RevenueCat, privacy, persistence, setup, limitations and a Mermaid architecture
 diagram. docs/demo-script.md provides a 125-second honest demo story;
 docs/submission-checklist.md lists ten capture screens and privacy/publication checks.
-Backend README corrects the stale failed-key status: replacement model lookup passed
-previously, while live image inference remains unverified.
+Backend README now records the subsequent physical Android verification: debug APK,
+USB debugging, adb reverse, loopback backend, real inference and semantic Reference
+results. This does not establish exhaustive production or model-quality validation.
 
 Created in this polish task:
 
@@ -174,11 +176,18 @@ Both APK builds passed and signatures verified. Package version is 1.5.0/build 6
 - Packaged Dart binaries were checked for the actual backend credential and Test
   Store key pattern. Neither APK contains the OpenAI credential; release contains
   neither a Test Store key nor the USB backend URL.
-- Local backend health returned {"status":"ok"}. No phone was connected; no live
-  image inference or physical scrolling/accessibility verification was performed.
+- At the automated build checkpoint, health returned {"status":"ok"} and no phone
+  was connected. Subsequent owner-reported Android testing verified the USB/adb
+  reverse connection to 127.0.0.1:8000 and live inference with semantic References.
+  Broad model-quality, scrolling and accessibility evaluation remain separate checks.
 - Existing nonfatal SDK/Kotlin compatibility warnings remain; no SDK migration.
 
-## Exact physical checks still required
+## Physical regression checklist
+
+The development multimodal path has now been physically verified as described
+above. Keep these regression checks for future builds; that result does not imply
+every device/action/model output has been exhaustively validated. Earlier OCR/action
+verification and automated persistence/RevenueCat results retain their stated scope.
 
 1. Install 1.5.0 debug over the current app without uninstalling. Confirm existing
    Archive data and quota survive; do not clear it until intentionally preparing demo.
@@ -206,8 +215,8 @@ Both APK builds passed and signatures verified. Package version is 1.5.0/build 6
 11. Install safe release preview for capture: no diagnostics/reset controls, no backend
     URL/errors/paths. Purchases/cloud unavailable gracefully; use debug for Test Store.
 12. Rehearse the demo offline, review every frame against submission-checklist.md,
-    and resolve LICENSE/asset rights before publishing the repository.
+    and resolve asset rights before publishing the repository. MIT LICENSE is present.
 
 No database, category, semantic search, authentication, Firebase, background gallery
-scanning or automatic original deletion was introduced. Phone validation, missing
-LICENSE, asset rights and production deployment/signing remain outstanding.
+scanning or automatic original deletion was introduced. Broader device/model-quality
+evaluation, asset rights and production deployment/security/signing remain outstanding.

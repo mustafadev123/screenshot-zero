@@ -2,7 +2,7 @@
 
 ## Publication prerequisites
 
-- [ ] Owner selects a project LICENSE. None exists; do not assume MIT.
+- [x] MIT LICENSE added with Copyright (c) 2026 Muhammad Mustufa.
 - [ ] Confirm redistribution rights/provenance of raster fixtures, portraits, fonts
   and launcher assets. Controlled content alone is not a license.
 - [ ] Scan tree/history again immediately before publication. Current pattern scan
@@ -13,12 +13,19 @@
 - [ ] Rotate credentials shared during development before public deployment.
 - [ ] Configure production signing, Android RevenueCat production key and HTTPS/
   rate-limited backend for distribution. Current backend is not authenticated.
-- [ ] Complete the physical checks in final-polish.md; unit tests do not establish
-  live inference, TalkBack usability, scrolling performance or notification delivery.
+- [x] Development Android phone-to-backend connectivity and live multimodal inference
+  verified via USB debugging/adb reverse, including semantic Reference results.
+- [ ] Continue the regression checks in final-polish.md. This verification does not
+  establish broad model quality, TalkBack usability, scrolling performance or
+  notification delivery across devices.
 - [ ] Review current organizer requirements separately. This is a product checklist,
   not a certification of contest eligibility.
 
 ## Screens to capture
+
+- [ ] 1024×1024 app icon suitable for submission
+- [ ] At least one clean phone screenshot without a device frame
+- [ ] Public demo video link added to the README when available
 
 - [ ] Onboarding hero
 - [ ] Home with controlled waiting count

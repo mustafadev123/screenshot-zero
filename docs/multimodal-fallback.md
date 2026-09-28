@@ -1,5 +1,9 @@
 # Multimodal fallback architecture
 
+Historical 1.4.0 architecture checkpoint. Its original APK and pending-verification
+notes are retained for context. Current 1.5.0 setup and subsequent physical Android
+live-inference verification are documented in ../README.md and ../backend/README.md.
+
 **Update:** The backend-completion task adds a real HTTP adapter, configured with
 MULTIMODAL_API_BASE_URL, and an OpenAI FastAPI backend. Missing URL still keeps
 local-only behavior. See [current setup and results](../backend/README.md). The
