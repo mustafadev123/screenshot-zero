@@ -2,108 +2,196 @@
 
 **Your screenshots are unfinished intentions.**
 
-Screenshot Zero is a Flutter Android app that turns saved screenshots into useful
-actions and a persistent Archive. Local-first OCR, optional multimodal understanding
-and RevenueCat Pro help you clear the pile in a restrained Digital Darkroom interface.
+Screenshot Zero turns screenshot clutter into action. An event poster you meant
+to add to your calendar. A restaurant you wanted to visit. A product worth
+remembering. An assignment deadline buried in your camera roll.
 
-## What it does
+Bring them into one actionable inbox, decide what happens next, and clear the pile.
 
 **Import → Understand → Act / Save / Skip → Zero**
 
-Save something useful, act when you're ready, or skip it without deleting the
-original. An offline deterministic demo and public setup instructions make the
-six-intent workflow easy to explore.
+## Why Screenshot Zero?
+
+Screenshots hold events to attend, places to visit, products to remember, articles
+to read, tasks to complete and references worth keeping. Then they get buried in
+the camera roll.
+
+Screenshot Zero treats them like an inbox, with a clear next step and a restrained
+Digital Darkroom interface that keeps your screenshots at the center.
 
 ## Product tour
 
-Clean product captures are being prepared. Planned images (not linked until added):
+Final product captures and a demo video are coming soon. Planned captures:
 
-| Screen | Capture to add |
+| Screen | File to add |
 | --- | --- |
 | Home | `docs/images/home.png` |
+| Import Preview | `docs/images/import-preview.png` |
 | Zero Stack | `docs/images/zero-stack.png` |
 | Archive | `docs/images/archive.png` |
+| Inbox Zero | `docs/images/inbox-zero.png` |
 | Pro paywall | `docs/images/pro-paywall.png` |
 
 See the [capture checklist](docs/submission-checklist.md) for the complete set.
 
+## The experience
+
+1. **Import** the screenshots you want to clear.
+2. **Understand** their text, intent and useful details.
+3. **Find a next step**, or keep the screenshot as a Reference.
+4. **Act, Save or Skip** each card in the Zero Stack.
+5. **Reach Inbox Zero** when the stack is empty.
+
 ## Supported intents
 
-| Category | Action |
+| Intent | Action |
 | --- | --- |
-| Event | Open Calendar, then confirm it was saved |
-| Place | Open Maps |
-| Product | Save to wishlist |
-| Read | Save for reading; open an actually detected URL |
-| Task | Confirm and schedule a reminder |
-| Reference | Keep something useful without inventing an action |
+| Event | Add to Calendar |
+| Place | Open in Maps |
+| Product | Add to Wishlist |
+| Read | Save for Reading |
+| Task | Create Reminder |
+| Reference | Save Reference |
 
-Save archives without running the primary action. Skip dismisses only the current
-session card; it never deletes the original or creates a false Archive status.
-Reference is a valid outcome: a food photo is not automatically a shopping task.
+Calendar opens for the user to save the event and confirm the outcome. Reminders
+require a confirmed time. Reading items can open an actually detected URL.
 
-## How it works
+## Built around action, not AI
 
-ML Kit OCR and existing classifier/extraction run on-device. Confident results
-never upload. Weak results may use visual analysis only with Pro, saved consent
-and a configured backend. Strict validation and a conservative resolver preserve
-local results on failure. Reference title cleanup rejects low-information OCR;
-it does not guess an unseen subject from a brand name.
+Screenshot Zero asks: **What did you save this to do?** Recognition is useful when
+it helps you take the next step.
 
-Local OCR never uploads images. Optional visual analysis sends only selected
-difficult screenshots and OCR/context after consent. The backend keeps no permanent
-image archive; upstream retention policies still apply. Calendar/Maps receive chosen
-action data. No background gallery scanning or automatic original deletion.
+These controlled examples were verified during development:
 
-Physical Android multimodal connectivity and live inference, including semantic
-Reference results, were verified in development using a debug APK, USB debugging,
-`adb reverse` and the backend on `127.0.0.1:8000`. This is not exhaustive production
-validation; broad model-quality evaluation remains future work.
+| Screenshot | Extracted details | Next step |
+| --- | --- | --- |
+| Campus Research Symposium | Oct 18, 2026 · 7:30 PM · Student Center Ballroom | Add to Calendar |
+| Everyday Runner | $89 · Chalk · Size 9 | Add to Wishlist |
+| Assignment 3 | Due Sep 30, 2026 · 11:59 PM · CSC 6851 | Create Reminder |
+| Sunday Table | 48 Peachtree Street, Atlanta | Open in Maps |
+
+Reference is a valid outcome. Recognizing food or shoes alone does not establish
+a shopping task or another actionable intent.
+
+## Inbox Zero
+
+Every screenshot has three possible outcomes:
+
+| Choice | What happens |
+| --- | --- |
+| **Act** | Perform its primary action and archive the outcome. |
+| **Save** | Archive it without performing the primary action. |
+| **Skip** | Dismiss it from the current clearing session only. |
+
+Skip never creates a false Archive entry. Original screenshots are never
+automatically deleted.
+
+> Clear the stack. Reach zero.
+
+## An Archive worth coming back to
+
+Keep the screenshots you want, together with their extracted details and action
+status. The persistent local Archive preserves app-owned copies of the original
+imported images. No account is required, and there is no cloud Archive sync.
+
+Copies preserve original bytes and EXIF metadata. Versioned JSON records and
+content-addressed image storage provide deduplication; a corrupt record is skipped
+without wiping the collection. This approach supports hundreds of records without
+introducing a database before complex queries are needed.
+
+## Local-first intelligence
+
+**The fast path stays on your device.** ML Kit reads the screenshot; deterministic
+classification and structured extraction turn its text into useful details.
+Confident local results never upload. Reference title cleanup rejects
+low-information OCR without guessing an unseen subject from a brand name.
+
+**The fallback helps with weak or uncertain results.** It requires Pro, explicit
+saved consent and a configured backend. Only then can the selected screenshot and
+OCR/context go to FastAPI for OpenAI multimodal analysis. Strict validation and a
+conservative resolver check the response; failures preserve the local result.
+
+Visual recognition alone does not force an Event, Place, Product or Task.
+Ambiguous content can remain Reference.
+
+## Screenshot Zero Pro
+
+Powered by RevenueCat.
+
+| Free | Pro |
+| --- | --- |
+| 10 real screenshot analyses | Removes the app-side processing quota |
+| Local OCR and extraction | Also unlocks optional multimodal fallback |
+
+Purchase and restore are supported, with prices from RevenueCat offerings.
+Entitlement `screenshot_zero_pro` is shared across startup refresh, purchase,
+restore, the entitlement listener and paywall. Demo items consume no quota.
+
+Fallback still requires consent and backend availability, and remains subject to
+backend rate/cost limits. RevenueCat Test Store is **debug-only**: release builds
+must not use `test_` keys and need the Android production key for purchases.
+
+## Privacy by design
+
+- OCR runs locally, and strong local results never upload.
+- Cloud fallback requires consent and sends only selected difficult screenshots.
+- There is no background gallery scanning or automatic original deletion.
+- No user accounts or cloud Archive are required or provided.
+- The backend does not permanently archive screenshots; upstream retention
+  policies still apply.
+- Release builds hide diagnostics and internal errors.
+
+Calendar and Maps receive the action data you choose to use. RevenueCat handles
+subscription communication. OpenAI credentials stay on the backend.
+
+## Verified on Android
+
+Development testing covered a physical Android device, Android Photo Picker,
+OCR, real Calendar and Maps actions, reminders, persistent Archive and RevenueCat
+Test Store.
+
+Phone-to-FastAPI connectivity and live multimodal inference, including semantic
+Reference results, were verified with a debug APK, USB debugging, `adb reverse`
+and the backend on `127.0.0.1:8000`. This does not imply exhaustive device coverage,
+production security validation or perfect model accuracy.
 
 ## Architecture
 
 ```mermaid
 flowchart TD
-  Picker[Android Photo Picker] --> Image[Original imported image]
-  Image --> OCR[On-device ML Kit OCR]
-  OCR --> Local[Local classifier and extractor]
-  Local --> Gate{Strong local evidence?}
-  Gate -->|Yes| Item[ScreenshotItem]
-  Gate -->|No| Consent{Pro + consent + backend URL?}
-  Consent -->|No| Item
-  Consent -->|Yes| Backend[FastAPI backend]
-  Image -->|Only after gates pass| Backend
-  Backend --> Model[OpenAI multimodal model]
-  Model --> Resolver[Strict validation and conservative resolver]
-  Backend -->|Failure: keep local| Item
-  Resolver --> Item
-  Item --> Stack[Zero Stack]
-  Stack --> Action[Action or Save]
-  Stack --> Skip[Skip: dismiss session card]
-  Action --> Archive[Local Archive: metadata + original image copy]
-  Archive --> Zero[Inbox Zero when no cards remain]
+  Picker["Android Photo Picker"] --> Image["Imported screenshot"]
+  Image --> OCR["ML Kit OCR"]
+  OCR --> Local["Local classifier + extraction"]
+  Local --> Strong{"Strong local?"}
+  Strong -->|Yes| Item["Screenshot item"]
+  Strong -->|No| Gate{"Pro + consent + backend?"}
+  Gate -->|No| Item
+  Gate -->|Yes| API["FastAPI"]
+  Image -->|After gates pass| API
+  API --> Model["Multimodal model"]
+  Model --> Resolve["Strict validation + conservative resolver"]
+  Resolve --> Item
+  API -->|Failure: keep local| Item
+  Item --> Stack["Zero Stack"]
+  Stack --> Keep["Act / Save"]
+  Stack --> Skip["Skip: dismiss session card"]
+  Keep --> Archive["Local Archive"]
+  Archive --> Zero["Inbox Zero when stack is empty"]
   Skip --> Zero
-  RC[RevenueCat entitlement] -.-> Consent
-  RC -.-> Quota[10-analysis free quota; Pro bypass]
+  RC["RevenueCat entitlement"] -.-> Gate
+  RC -.-> Quota["10-analysis free quota / Pro bypass"]
   Quota -.-> OCR
 ```
 
-Riverpod coordinates inbox, Archive, quota and subscriptions. Archive uses versioned
-JSON records and content-addressed images in app support storage. Copies preserve
-original bytes and EXIF metadata. Corruption skips individual records without
-wiping the collection. This remains appropriate for hundreds of records; a database
-migration adds risk without a present need for complex queries.
+Riverpod coordinates the inbox, Archive, quota and subscriptions.
 
-## RevenueCat / Pro
+## Tech stack
 
-RevenueCat is integrated with entitlement `screenshot_zero_pro` across startup
-refresh, purchase, restore, listener and paywall. Prices come from offerings.
-Free includes **10 real screenshot analyses**. Pro removes the app's processing
-quota and unlocks the premium fallback path, subject to consent, backend availability
-and backend rate/cost limits. Demo cards consume no quota.
-
-Test Store is used in debug development only. Release builds must not use `test_`
-keys; they need the Android production key for purchases.
+| Layer | Tools |
+| --- | --- |
+| Mobile | Flutter, Dart, Riverpod, GoRouter, ML Kit, RevenueCat, SharedPreferences, flutter_local_notifications |
+| Backend | Python, FastAPI, official OpenAI SDK, Pydantic |
+| Storage | Versioned JSON records, app-owned images, content hashing and deduplication |
 
 ## Setup
 
@@ -123,37 +211,43 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tool\build_debug.ps1 `
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tool\build_release.ps1
 ```
 
-Flutter reads REVENUECAT_API_KEY and MULTIMODAL_API_BASE_URL through
-String.fromEnvironment; it does not automatically load .env.example.
-APKs are in build/app/outputs/flutter-apk/. Current signing is for development
+Flutter reads `REVENUECAT_API_KEY` and `MULTIMODAL_API_BASE_URL` through
+`String.fromEnvironment`; it does not automatically load `.env.example`.
+APKs are in `build/app/outputs/flutter-apk/`. Current signing is for development
 sideloading. Production requires distribution signing, an Android RevenueCat
-production key and HTTPS backend if enabled. Test Store is debug-only.
+production key and an HTTPS backend if enabled.
 
-## Backend setup
+### Backend setup
 
-[Backend setup, API contract and USB/LAN phone connection](backend/README.md)
-documents FastAPI and the official OpenAI SDK. OPENAI_API_KEY and
-OPENAI_MULTIMODAL_MODEL belong only in ignored backend/.env. For the debug APK's
-loopback endpoint, connect an authorized phone by USB and run:
+The [backend guide](backend/README.md) covers setup, the API contract and USB/LAN
+phone connections. `OPENAI_API_KEY` and `OPENAI_MULTIMODAL_MODEL` belong only in
+ignored `backend/.env`. For the debug APK's loopback endpoint, keep the backend
+running, connect an authorized phone by USB and run:
 
 ```powershell
 adb reverse tcp:8000 tcp:8000
 ```
 
-Release hides diagnostics and internal errors. Debug retains OCR diagnostics and a
-confirmed **Clear development archive** control in Home's menu. This clears app-owned
-Archive records/images only, not originals, quota or scheduled reminders.
-
 ## Demo
 
-The deterministic eight-card demo covers all six categories without Gallery,
-backend, OpenAI or RevenueCat network availability. Demo actions are simulated;
-real imports invoke device integrations. Demo reset never clears real Archive.
+Explore the full loop with an **offline, deterministic eight-card demo** covering
+all six categories. No Gallery, backend, OpenAI or RevenueCat network availability
+is needed. Demo actions are simulated; real imports use actual device integrations.
+Resetting the demo never clears your real Archive.
+
+Debug builds retain OCR diagnostics and a confirmed **Clear development archive**
+control in Home's menu. It clears only app-owned Archive records/images, leaving
+originals, quota and scheduled reminders intact.
+
+**Demo video: coming soon.**
 
 [90–150 second demo script](docs/demo-script.md) ·
-[Submission checklist](docs/submission-checklist.md)
+[Submission checklist](docs/submission-checklist.md) ·
+[Final polish results and regression phone checks](docs/final-polish.md)
 
 ## Testing
+
+Latest verified results: **114 Flutter tests passing** and **22 backend tests passing**.
 
 ```powershell
 flutter analyze
@@ -162,19 +256,20 @@ cd backend
 .\.venv\Scripts\python.exe -m pytest tests -q -p no:cacheprovider
 ```
 
-[Final polish results and regression phone checks](docs/final-polish.md)
-
 ## Known limitations
 
-English-oriented OCR and uncertain visual models. Verified development inference
-does not guarantee every title/category. Missing/incorrect EXIF cannot be repaired reliably by guessing.
-Browser Archive and unprocessed inbox cards are session-only. Android can delay
-reminders. Disk-write failures require retry before closing; uninstall/clear-data
-removes local records. No search, sync or production deletion UI.
+- OCR is English-oriented; visual models can produce uncertain titles or categories.
+  Missing or incorrect EXIF cannot be reliably repaired by guessing.
+- Android can delay reminders.
+- No account sync, cloud Archive, Archive search or production deletion UI.
+  Browser Archive and unprocessed inbox cards are session-only.
+- Retry disk-write failures before closing. Uninstalling or clearing app data
+  removes local records.
+- Public deployment still requires production backend hardening, distribution
+  signing, broader device/model-quality testing and asset-rights review.
+  Use synthetic content; never publish a private Archive.
 
-Public deployment still requires asset-rights review, broader device/model-quality
-testing, production security and distribution signing. Use synthetic content;
-never publish a private Archive.
+> Screenshot Zero turns the screenshots you meant to come back to into things you can actually finish.
 
 ## License
 
