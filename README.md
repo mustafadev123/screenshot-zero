@@ -21,18 +21,29 @@ Digital Darkroom interface that keeps your screenshots at the center.
 
 ## Product tour
 
-Final product captures and a demo video are coming soon. Planned captures:
+These screenshots and the demo video were submitted on Devpost and are included
+here for the repository's product presentation.
 
-| Screen | File to add |
+[Watch the demo on YouTube](https://www.youtube.com/watch?v=rZnx14GW3YI)
+
+| Home | Import Preview | Archive |
+| --- | --- | --- |
+| <img src="docs/images/home.jpg" alt="Home with eight demo screenshots waiting" width="240"> | <img src="docs/images/import-preview.jpg" alt="Import Preview with nine selected screenshots" width="240"> | <img src="docs/images/archive.jpg" alt="Archive with saved screenshots" width="240"> |
+
+| Inbox Zero | Pro paywall | Cloud fallback consent |
+| --- | --- | --- |
+| <img src="docs/images/inbox-zero.jpg" alt="Inbox Zero completion screen" width="240"> | <img src="docs/images/pro-paywall.jpg" alt="Pro paywall showing captured offering prices" width="240"> | <img src="docs/images/cloud-consent.jpg" alt="Consent dialog for analyzing difficult screenshots online" width="240"> |
+
+| Onboarding: the pile | Onboarding: a fresh start |
 | --- | --- |
-| Home | `docs/images/home.png` |
-| Import Preview | `docs/images/import-preview.png` |
-| Zero Stack | `docs/images/zero-stack.png` |
-| Archive | `docs/images/archive.png` |
-| Inbox Zero | `docs/images/inbox-zero.png` |
-| Pro paywall | `docs/images/pro-paywall.png` |
+| <img src="docs/images/onboarding-pile.jpg" alt="Onboarding introducing screenshot intentions" width="240"> | <img src="docs/images/onboarding-clear.jpg" alt="Onboarding inviting the user to clear the pile" width="240"> |
 
-See the [capture checklist](docs/submission-checklist.md) for the complete set.
+Home shows the deterministic demo inbox. Paywall prices reflect the captured
+offering configuration, not a guarantee of current production pricing. Demo
+actions are simulated; real imports use device integrations.
+
+See the [submission checklist](docs/submission-checklist.md) for recorded
+verification and remaining capture and distribution items.
 
 ## The experience
 
@@ -144,7 +155,10 @@ must not use `test_` keys and need the Android production key for purchases.
 Calendar and Maps receive the action data you choose to use. RevenueCat handles
 subscription communication. OpenAI credentials stay on the backend.
 
-## Verified on Android
+## Completed development verification
+
+These recorded checks cover development builds; published media do not establish
+production distribution readiness.
 
 Development testing covered a physical Android device, Android Photo Picker,
 OCR, real Calendar and Maps actions, reminders, persistent Archive and RevenueCat
@@ -239,7 +253,7 @@ Debug builds retain OCR diagnostics and a confirmed **Clear development archive*
 control in Home's menu. It clears only app-owned Archive records/images, leaving
 originals, quota and scheduled reminders intact.
 
-**Demo video: coming soon.**
+**[Watch the submitted demo video on YouTube](https://www.youtube.com/watch?v=rZnx14GW3YI).**
 
 [90–150 second demo script](docs/demo-script.md) ·
 [Submission checklist](docs/submission-checklist.md) ·

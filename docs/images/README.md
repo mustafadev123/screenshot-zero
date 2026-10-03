@@ -1,14 +1,7 @@
-# Product captures to add
+# Product captures
 
-Add real, clean captures here; no placeholder binaries or broken image links are
-included in the main README. Planned README assets:
+Original screenshots supplied by the author for the Devpost submission.
+The main README embeds these eight JPEGs and links the submitted demo video:
+https://www.youtube.com/watch?v=rZnx14GW3YI
 
-- home.png
-- zero-stack.png
-- archive.png
-- pro-paywall.png
-
-Also prepare Import Preview, Inbox Zero and at least one clean phone screenshot
-without a device frame. Prepare a 1024×1024 app icon and a public demo video link.
-Use controlled, non-personal content; hide diagnostics, keys and notification shade.
-Once captures exist, replace the main README's filename table with relative images.
+See ../submission-checklist.md for remaining capture coverage and media review.
